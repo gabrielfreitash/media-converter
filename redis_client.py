@@ -1,0 +1,10 @@
+import redis
+
+redis_client = redis.Redis(
+    host="redis",
+    port=6379,
+    db=0,
+)
+
+REQUESTS_CHANNEL = "converter:requests"
+RESPONSES_CHANNEL = "converter:responses"

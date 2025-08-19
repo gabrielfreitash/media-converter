@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+
+  server:
+    build: .
+    container_name: media-server
+    depends_on:
+      - redis
+    environment:
+      - AUTH_TOKEN=1234
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "5000:5000"
+    command: ["python", "server.py"]
+    restart: unless-stopped
+
+  converter:
+    build: .
+    container_name: media-converter
+    depends_on:
+      - redis
+    environment:
+      - IMAGE_TARGET_WIDTH=1024
+      - IMAGE_TARGET_HEIGHT=1024
+      - IMAGE_BG_COLOR=#FFFFFF
+      - AUDIO_BITRATE=192k
+      - LOCK_TTL_SECONDS=600
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    command: ["python", "converter.py"]
+    restart: unless-stopped
+
+volumes:
+  redis-data:
