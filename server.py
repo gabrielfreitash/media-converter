@@ -1,3 +1,4 @@
+import asyncio
 import os
 import pickle
 from functools import wraps
@@ -27,14 +28,29 @@ def require_auth(func):
     return wrapper
 
 
+def require_auth_async(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        token = flask.request.headers.get("Authorization")
+        if not auth_token:
+            raise ValueError("AUTH_TOKEN environment variable is not set.")
+        if not token:
+            return flask.abort(401)
+        if token == f"Bearer {auth_token}" or token == auth_token:
+            return await func(*args, **kwargs)
+        return flask.abort(401)
+
+    return wrapper
+
+
 @app.route("/hc")
 def index():
     return "ok"
 
 
 @app.route("/convert")
-@require_auth
-def convert():
+@require_auth_async
+async def convert():
     request = ConvertRequest(**flask.request.json)
     redis_client.redis_client.publish(
         redis_client.REQUESTS_CHANNEL,
@@ -47,7 +63,7 @@ def convert():
     subscriber = redis_client.redis_client.pubsub()
     subscriber.subscribe(redis_client.RESPONSES_CHANNEL)
     while True:
-        message = subscriber.get_message(timeout=0.1)
+        message = subscriber.get_message()
         if message:
             # Ignore non-message control frames (e.g., subscribe confirmations) which often carry integers
             if message.get("type") != "message":
@@ -74,6 +90,7 @@ def convert():
 
             if response.request.uuid == request.uuid:
                 return response.data
+        await asyncio.sleep(0.1)
 
 
 if __name__ == "__main__":

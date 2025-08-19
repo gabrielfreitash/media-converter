@@ -2,3 +2,6 @@ flask
 pydub
 Pillow
 redis
+gunicorn
+gevent
+flask[async]

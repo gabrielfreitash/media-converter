@@ -20,7 +20,7 @@ services:
       - REDIS_PORT=6379
     ports:
       - "5095:5095"
-    command: ["python", "server.py"]
+    command: ["gunicorn", "--worker-class", "gevent", "--workers", "3", "--bind", "0.0.0.0:5095", "wsgi:app"]
     restart: unless-stopped
 
   converter:

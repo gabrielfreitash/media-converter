@@ -15,7 +15,7 @@ COPY . /app
 
 # Instala dependências Python
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir flask redis pydub pillow
+    && pip install --no-cache-dir -r requirements.txt
 
 # Comando padrão (sobrescrito pelo docker-compose)
 CMD ["python", "server.py"]
