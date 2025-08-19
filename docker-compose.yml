@@ -19,7 +19,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
-      - "5000:5000"
+      - "5095:5095"
     command: ["python", "server.py"]
     restart: unless-stopped
 
