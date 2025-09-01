@@ -22,6 +22,7 @@ class ConvertRequest:
             # base64
 
             self.data = base64.b64decode(self.data)
+        self.extension = self.extension.replace(".", "")
 
 
 @dataclass

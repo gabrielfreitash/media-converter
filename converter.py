@@ -1,12 +1,14 @@
-# filepath: /home/gabriel/media-converter/converter.py
 import base64
 import io
 import os
 import pickle
 import sys
+import threading
 import uuid as py_uuid
+from dataclasses import asdict
 from typing import Optional
 
+import requests
 from PIL import Image, ImageColor, ImageOps
 from pydub import AudioSegment
 
@@ -164,6 +166,31 @@ def process_message(msg_data: bytes) -> None:
                 out_bytes = convert_audio_to_mp3(raw, None)
 
         response = ConvertResponse(data=out_bytes, request=request)
+        if response.request.webhook_url:
+            payload = asdict(response)
+            payload["data"] = base64.b64encode(response.data)
+            payload["request"] = asdict(response.request)
+            payload["request"].pop("data")
+            # Ensure base64 data is a string for JSON serialization
+            if isinstance(payload.get("data"), (bytes, bytearray)):
+                payload["data"] = payload["data"].decode("utf-8")
+
+            def _post_webhook(url: str, body: dict) -> None:
+                try:
+                    requests.post(url, json=body, timeout=10)
+                except Exception:
+                    print(
+                        f"failed to post webhook to {url}",
+                        file=sys.stderr,
+                        flush=True,
+                    )
+                    pass
+
+            threading.Thread(
+                target=_post_webhook,
+                args=(response.request.webhook_url, payload),
+                daemon=True,
+            ).start()
         publish_response_obj(response)
 
     except Exception:

@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import os
 import pickle
 from functools import wraps
@@ -48,7 +49,7 @@ def index():
     return "ok"
 
 
-@app.route("/convert")
+@app.route("/convert", methods=["POST"])
 @require_auth_async
 async def convert():
     request = ConvertRequest(**flask.request.json)
@@ -89,7 +90,7 @@ async def convert():
                     continue
 
             if response.request.uuid == request.uuid:
-                return response.data
+                return {"data": base64.b64encode(response.data).decode("utf-8")}
         await asyncio.sleep(0.1)
 
 

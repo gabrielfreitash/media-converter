@@ -5,3 +5,4 @@ redis
 gunicorn
 gevent
 flask[async]
+requests

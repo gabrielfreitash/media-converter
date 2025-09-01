@@ -1,0 +1,13 @@
+# Caddyfile — internal TLS and reverse proxy to the internal `server` service
+# Listen on port 2083 with HTTPS using Caddy's `tls internal` CA (internal PKI).
+
+api.voiceform.me:2083 {
+    tls internal
+
+    reverse_proxy server:5095
+
+    # Basic logging to stdout (Caddy already logs to container logs)
+    log {
+        output stdout
+    }
+}
