@@ -32,7 +32,7 @@ def is_mp3(data: bytes) -> bool:
 def main() -> int:
     # Configurações
     api_url = os.getenv("API_URL", "http://localhost:5095/convert")
-    token = os.getenv("AUTH_TOKEN", "1234")
+    token = os.getenv("AUTH_TOKEN", "")
     output_path = os.getenv("OUTPUT_PATH", "test_output.jpg")
 
     # Função utilitária para enviar conversão e validar resposta

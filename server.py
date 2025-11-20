@@ -11,7 +11,7 @@ from models import ConvertRequest, ConvertResponse
 
 app = flask.Flask(__name__)
 
-auth_token = os.getenv("AUTH_TOKEN")
+auth_token = os.getenv("AUTH_TOKEN", "")
 
 
 def require_auth(func):
@@ -19,7 +19,7 @@ def require_auth(func):
     def wrapper(*args, **kwargs):
         token = flask.request.headers.get("Authorization")
         if not auth_token:
-            raise ValueError("AUTH_TOKEN environment variable is not set.")
+            return func(*args, **kwargs)
         if not token:
             return flask.abort(401)
         if token == f"Bearer {auth_token}" or token == auth_token:

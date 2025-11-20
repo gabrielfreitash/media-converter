@@ -15,7 +15,7 @@ services:
     depends_on:
       - redis
     environment:
-      - AUTH_TOKEN= # Change this password if the network is exposed outside the docker network created
+      - AUTH_TOKEN= # Change this password if the api is exposed outside the docker network created
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     command: ["gunicorn", "--worker-class", "gevent", "--workers", "3", "--bind", "0.0.0.0:5095", "wsgi:app"]
@@ -37,5 +37,18 @@ services:
     command: ["python", "converter.py"]
     restart: unless-stopped
 
+  caddy-media-converter:
+    image: caddy:2
+    container_name: caddy
+    depends_on:
+      - server-media-converter
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
 volumes:
   redis-data:
+  caddy_data:
+  caddy_config:

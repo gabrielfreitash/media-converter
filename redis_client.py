@@ -1,7 +1,7 @@
 import redis
 
 redis_client = redis.Redis(
-    host="redis",
+    host="redis-media-converter",
     port=6379,
     db=0,
 )
