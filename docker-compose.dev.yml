@@ -3,7 +3,6 @@ version: "3.8"
 services:
   redis-media-converter:
     image: redis:7-alpine
-    container_name: redis
     restart: unless-stopped
     volumes:
       - redis-data:/data
@@ -13,7 +12,7 @@ services:
     build: .
     container_name: media-server
     depends_on:
-      - redis
+      - redis-media-converter
     environment:
       - AUTH_TOKEN=change_me # Change this password 
       - REDIS_HOST=redis
